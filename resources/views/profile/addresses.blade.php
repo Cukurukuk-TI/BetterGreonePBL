@@ -12,8 +12,9 @@
                             Kelola alamat pengiriman Anda di sini.
                         </p>
                     </div>
-                    {{-- Tombol ini kita siapkan untuk Commit 4 --}}
-                    <x-primary-button disabled>Tambah Alamat</x-primary-button>
+                    <a href="{{ route('profile.addresses.create') }}">
+                        <x-primary-button>Tambah Alamat</x-primary-button>
+                    </a>
                 </header>
 
                 <div class="mt-6 space-y-4">

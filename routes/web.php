@@ -25,10 +25,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     Route::get('/profile/account', function () {
         return view('profile.account');
     })->name('profile.account');
+
+    //Route untuk mengelola alamat
     Route::get('/profile/addresses', [ProfileController::class, 'addresses'])->name('profile.addresses');
+    Route::get('/profile/addresses/create', [\App\Http\Controllers\ProfileController::class, 'createAddress'])->name('profile.addresses.create');
+    Route::post('/profile/addresses', [\App\Http\Controllers\ProfileController::class, 'storeAddress'])->name('profile.addresses.store');
 
 
 });

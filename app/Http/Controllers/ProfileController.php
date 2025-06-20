@@ -75,4 +75,39 @@ class ProfileController extends Controller
         ]);
     }
 
+        public function createAddress()
+    {
+        return view('profile.addresses-create');
+    }
+
+    /**
+     * TAMBAHKAN METHOD BARU DI BAWAH INI
+     * Menyimpan alamat baru ke database.
+     */
+    public function storeAddress(Request $request)
+    {
+        // 1. Validasi semua input dari form
+        $validated = $request->validate([
+            'label' => ['required', 'string', 'max:255'],
+            'recipient_name' => ['required', 'string', 'max:255'],
+            'phone_number' => ['required', 'string', 'max:20'],
+            'full_address' => ['required', 'string'],
+            'city' => ['required', 'string', 'max:255'],
+            'province' => ['required', 'string', 'max:255'],
+            'postal_code' => ['required', 'string', 'max:10'],
+            'is_default' => ['sometimes', 'boolean'],
+        ]);
+
+        if ($request->has('is_default')) {
+            $validated['is_default'] = true;
+            Auth::user()->addresses()->update(['is_default' => false]);
+        } else {
+            $validated['is_default'] = false;
+        }
+
+        Auth::user()->addresses()->create($validated);
+
+        return redirect()->route('profile.addresses')->with('status', 'address-added');
+    }
+
 }
