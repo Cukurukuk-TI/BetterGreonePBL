@@ -97,7 +97,7 @@ class ProductResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                // Aksi Edit dan Delete akan kita tambahkan di commit selanjutnya
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 //
