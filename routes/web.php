@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
 
 // RUTE PUBLIK (Bisa diakses tanpa login)
 Route::get('/', function () {
     return view('home');
 })->name('home');
+
+Route::get('/produk', [ProductController::class, 'index'])->name('produk.index');
 
 // RUTE KHUSUS PENGGUNA TERDAFTAR
 Route::middleware(['auth', 'verified'])->group(function () {

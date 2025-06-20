@@ -12,7 +12,7 @@
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
                         {{ __('Beranda') }}
                     </x-nav-link>
-                    <x-nav-link href="#" :active="false">
+                    <x-nav-link href="{{ route('produk.index') }}" :active="request()->routeIs('produk.index')">
                         {{ __('Produk') }}
                     </x-nav-link>
                     <x-nav-link href="#" :active="false">
