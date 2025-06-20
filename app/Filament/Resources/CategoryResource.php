@@ -67,9 +67,12 @@ class CategoryResource extends Resource
                 // Aksi Edit dan Delete akan kita tambahkan di commit selanjutnya
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                //
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
