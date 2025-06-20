@@ -15,6 +15,7 @@
                             <img src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}" class="w-full h-auto rounded-lg shadow-md">
                         </div>
 
+
                         <div class="flex flex-col">
                             <p class="text-sm font-semibold text-gray-500 uppercase">{{ $product->category->name }}</p>
                             <h1 class="text-4xl font-bold mt-2">{{ $product->name }}</h1>

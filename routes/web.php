@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Livewire\ProductPage;
+use App\Http\Controllers\CartController;
 
 // RUTE PUBLIK (Bisa diakses tanpa login)
 Route::get('/', function () {
@@ -37,6 +38,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/addresses/{address}/edit', [ProfileController::class, 'editAddress'])->name('profile.addresses.edit');
     Route::patch('/profile/addresses/{address}', [ProfileController::class, 'updateAddress'])->name('profile.addresses.update');
     Route::delete('/profile/addresses/{address}', [ProfileController::class, 'destroyAddress'])->name('profile.addresses.destroy');
+
+    // Route untuk menambahkan produk ke keranjang
+    Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('keranjang.tambah');
 
 });
 
