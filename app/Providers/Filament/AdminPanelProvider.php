@@ -94,10 +94,10 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-chat-bubble-left-right')
                     ->group('Manajemen Konten'),
 
-                NavigationItem::make('Daftar Pelanggan')
-                    ->url('#')
-                    ->icon('heroicon-o-users')
-                    ->group('Manajemen Pengguna'),
+                // NavigationItem::make('Daftar Pelanggan')
+                //     ->url('#')
+                //     ->icon('heroicon-o-users')
+                //     ->group('Manajemen Pengguna'),
             ]);
     }
 }
