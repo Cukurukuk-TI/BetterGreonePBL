@@ -19,4 +19,14 @@ class ProductController extends Controller
             'products' => $products,
         ]);
     }
+
+    public function show(Product $product): View
+    {
+        // Karena Route Model Binding, Laravel sudah otomatis mencarikan
+        // produk untuk kita. Kita tinggal mengirimkannya ke view.
+        return view('produk.show', [
+            'product' => $product
+        ]);
+    }
+
 }
