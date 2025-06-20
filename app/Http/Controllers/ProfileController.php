@@ -63,4 +63,16 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    public function addresses()
+    {
+        // Ambil alamat dari user yang sedang login menggunakan relasi yg dibuat di Commit 2
+        $addresses = Auth::user()->addresses()->latest()->get();
+
+        // Tampilkan view dan kirim data alamat ke dalamnya
+        return view('profile.addresses', [
+            'addresses' => $addresses,
+        ]);
+    }
+
 }

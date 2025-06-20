@@ -28,6 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/account', function () {
         return view('profile.account');
     })->name('profile.account');
+    Route::get('/profile/addresses', [ProfileController::class, 'addresses'])->name('profile.addresses');
+
 
 });
 

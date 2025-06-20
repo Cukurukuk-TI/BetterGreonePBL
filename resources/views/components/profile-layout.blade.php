@@ -29,10 +29,11 @@
                                 Pesanan
                             </span>
 
-                            <span class="block px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-600 cursor-not-allowed">
+                            <a href="{{ route('profile.addresses') }}"
+                               class="block px-4 py-2 text-sm font-medium rounded-md
+                               {{ request()->routeIs('profile.addreses') ? 'bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700' }}">
                                 Alamat
-                            </span>
-
+                            </a>
                             <form method="POST" action="{{ route('logout') }}" class="w-full">
                                 @csrf
                                 <button type="submit"
