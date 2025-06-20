@@ -57,6 +57,14 @@
                     <x-input-error class="mt-2" :messages="$errors->get('postal_code')" />
                 </div>
 
+                <div>
+                    <x-input-label for="map" :value="__('Pilih Lokasi di Peta')" />
+                    <div id="map" class="mt-1 h-64 w-full rounded-md shadow-sm"></div>
+                </div>
+
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
+
                 <div class="block mt-4">
                     <label for="is_default" class="inline-flex items-center">
                         <input id="is_default" type="checkbox" name="is_default" value="1" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
@@ -73,3 +81,4 @@
         </div>
     </div>
 </x-profile-layout>
+

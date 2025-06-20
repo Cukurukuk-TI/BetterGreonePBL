@@ -25,6 +25,8 @@ class Address extends Model
         'province',
         'postal_code',
         'is_default',
+        'latitude',
+        'longitude',
     ];
 
     /**

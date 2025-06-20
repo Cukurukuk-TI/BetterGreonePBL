@@ -97,6 +97,9 @@ class ProfileController extends Controller
             'province' => ['required', 'string', 'max:255'],
             'postal_code' => ['required', 'string', 'max:10'],
             'is_default' => ['sometimes', 'boolean'],
+            'latitude' => ['nullable', 'string', 'max:255'],
+            'longitude' => ['nullable', 'string', 'max:255'],
+
         ]);
 
         if ($request->has('is_default')) {
@@ -139,6 +142,9 @@ class ProfileController extends Controller
             'province' => ['required', 'string', 'max:255'],
             'postal_code' => ['required', 'string', 'max:10'],
             'is_default' => ['sometimes', 'boolean'],
+            'latitude' => ['nullable', 'string', 'max:255'],
+            'longitude' => ['nullable', 'string', 'max:255'],
+
         ]);
 
         if ($request->has('is_default')) {
