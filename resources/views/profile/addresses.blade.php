@@ -39,8 +39,9 @@
                                 </p>
                             </div>
                             <div>
-                                {{-- Tombol Aksi (Ubah/Hapus) disiapkan untuk commit selanjutnya --}}
-                                <x-secondary-button disabled>Ubah</x-secondary-button>
+                                <a href="{{ route('profile.addresses.edit', $address) }}">
+                                    <x-secondary-button>Ubah</x-secondary-button>
+                                </a>
                             </div>
                         </div>
                     @empty

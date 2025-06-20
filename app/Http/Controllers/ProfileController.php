@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\Address;
 
 class ProfileController extends Controller
 {
@@ -108,6 +109,49 @@ class ProfileController extends Controller
         Auth::user()->addresses()->create($validated);
 
         return redirect()->route('profile.addresses')->with('status', 'address-added');
+    }
+
+        public function editAddress(Address $address)
+    {
+        // Keamanan: Pastikan user hanya bisa mengedit alamat miliknya sendiri.
+        if ($address->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('profile.addresses-edit', [
+            'address' => $address,
+        ]);
+    }
+
+    public function updateAddress(Request $request, Address $address)
+    {
+        // Keamanan: Pastikan user hanya bisa mengupdate alamat miliknya sendiri.
+        if ($address->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'label' => ['required', 'string', 'max:255'],
+            'recipient_name' => ['required', 'string', 'max:255'],
+            'phone_number' => ['required', 'string', 'max:20'],
+            'full_address' => ['required', 'string'],
+            'city' => ['required', 'string', 'max:255'],
+            'province' => ['required', 'string', 'max:255'],
+            'postal_code' => ['required', 'string', 'max:10'],
+            'is_default' => ['sometimes', 'boolean'],
+        ]);
+
+        if ($request->has('is_default')) {
+            $validated['is_default'] = true;
+            // Jadikan semua alamat lain milik user ini sebagai 'not default'
+            Auth::user()->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+        } else {
+            $validated['is_default'] = false;
+        }
+
+        $address->update($validated);
+
+        return redirect()->route('profile.addresses')->with('status', 'address-updated');
     }
 
 }

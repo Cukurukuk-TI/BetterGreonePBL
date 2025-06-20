@@ -32,8 +32,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //Route untuk mengelola alamat
     Route::get('/profile/addresses', [ProfileController::class, 'addresses'])->name('profile.addresses');
-    Route::get('/profile/addresses/create', [\App\Http\Controllers\ProfileController::class, 'createAddress'])->name('profile.addresses.create');
-    Route::post('/profile/addresses', [\App\Http\Controllers\ProfileController::class, 'storeAddress'])->name('profile.addresses.store');
+    Route::get('/profile/addresses/create', [ProfileController::class, 'createAddress'])->name('profile.addresses.create');
+    Route::post('/profile/addresses', [ProfileController::class, 'storeAddress'])->name('profile.addresses.store');
+    Route::get('/profile/addresses/{address}/edit', [ProfileController::class, 'editAddress'])->name('profile.addresses.edit');
+    Route::patch('/profile/addresses/{address}', [ProfileController::class, 'updateAddress'])->name('profile.addresses.update');
 
 
 });
