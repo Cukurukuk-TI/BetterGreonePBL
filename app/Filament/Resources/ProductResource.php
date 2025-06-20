@@ -98,13 +98,21 @@ class ProductResource extends Resource
                 TrashedFilter::make(),
 
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
-            ])
+        ->actions([
+            // Aksi ini hanya tampil jika record TIDAK di-trash
+            Tables\Actions\ViewAction::make()
+                ->visible(fn ($record) => !$record->trashed()),
+            Tables\Actions\EditAction::make()
+                ->visible(fn ($record) => !$record->trashed()),
+            Tables\Actions\DeleteAction::make()
+                ->visible(fn ($record) => !$record->trashed()),
+
+            // Aksi ini hanya tampil jika record SUDAH di-trash
+            Tables\Actions\RestoreAction::make()
+                ->visible(fn ($record) => $record->trashed()),
+            Tables\Actions\ForceDeleteAction::make()
+                ->visible(fn ($record) => $record->trashed()),
+        ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
