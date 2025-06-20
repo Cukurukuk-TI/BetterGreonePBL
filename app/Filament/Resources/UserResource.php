@@ -80,10 +80,14 @@ class UserResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(), // Kita hanya tambahkan aksi untuk melihat detail
                 Tables\Actions\DeleteAction::make(), // Ini akan otomatis menjadi soft delete
-            ])
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
+                ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(), // Ini juga otomatis soft delete
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
                 ]),
             ]);
     }
