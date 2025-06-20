@@ -17,6 +17,24 @@
                     </a>
                 </header>
 
+                @if (session('status') === 'address-added')
+                    <p
+                        x-data="{ show: true }"
+                        x-show="show"
+                        x-transition
+                        x-init="setTimeout(() => show = false, 2000)"
+                        class="text-sm text-green-600 dark:text-green-400 mt-4"
+                    >{{ __('Alamat baru berhasil ditambahkan.') }}</p>
+                @elseif (session('status') === 'address-updated')
+                    <p
+                        x-data="{ show: true }"
+                        x-show="show"
+                        x-transition
+                        x-init="setTimeout(() => show = false, 2000)"
+                        class="text-sm text-green-600 dark:text-green-400 mt-4"
+                    >{{ __('Alamat berhasil diperbarui.') }}</p>
+                @endif
+
                 <div class="mt-6 space-y-4">
                     @forelse ($addresses as $address)
                         <div class="p-4 border dark:border-gray-700 rounded-lg flex justify-between items-start">
