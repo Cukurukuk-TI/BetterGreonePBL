@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -74,13 +75,16 @@ class UserResource extends Resource
             ])
             ->filters([
                 // Filter akan kita tambahkan nanti
+            TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(), // Kita hanya tambahkan aksi untuk melihat detail
-                // Tables\Actions\EditAction::make(), // Aksi edit kita sembunyikan dulu
+                Tables\Actions\DeleteAction::make(), // Ini akan otomatis menjadi soft delete
             ])
             ->bulkActions([
-                // Aksi massal akan kita tambahkan nanti
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(), // Ini juga otomatis soft delete
+                ]),
             ]);
     }
 
