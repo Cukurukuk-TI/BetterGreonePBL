@@ -14,9 +14,9 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone_number')->nullable()->after('email');
-            $table->date('date_of_birth')->nullable()->after('place_of_birth');
-            $table->text('bio')->nullable()->after('date_of_birth');
-            $table->string('profile_photo_path', 4096)->nullable()->after('bio');
+            $table->date('date_of_birth')->nullable(); // BENAR
+            $table->text('bio')->nullable();
+            $table->string('profile_photo_path', 4096)->nullable();
         });
     }
 
