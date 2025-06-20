@@ -10,6 +10,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/produk', [ProductController::class, 'index'])->name('produk.index');
+Route::get('/produk/{product:slug}', [ProductController::class, 'show'])->name('produk.show');
 
 // RUTE KHUSUS PENGGUNA TERDAFTAR
 Route::middleware(['auth', 'verified'])->group(function () {

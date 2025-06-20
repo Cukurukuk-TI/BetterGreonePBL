@@ -14,7 +14,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             @foreach ($products as $product)
                                 <div class="flex flex-col rounded-lg shadow-lg overflow-hidden">
-                                    <a href="#"> {{-- Arahkan ke detail produk nanti --}}
+                                    <a href="{{ route('produk.show', $product->slug) }}">
                                         <img class="h-48 w-full object-cover" src="{{ asset('storage/' . $product->image_path) }}" alt="{{ $product->name }}">
                                     </a>
                                     <div class="p-4 flex flex-col flex-grow">
@@ -24,7 +24,7 @@
                                             {{ 'Rp ' . number_format($product->price, 0, ',', '.') }}
                                         </p>
                                         <div class="mt-4 flex-grow"></div> {{-- Pendorong agar tombol ke bawah --}}
-                                        <a href="#" class="w-full text-center bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition duration-300">
+                                        <a href="{{ route('produk.show', $product->slug) }}" class="w-full text-center bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition duration-300">
                                             Lihat Detail
                                         </a>
                                     </div>
