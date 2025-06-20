@@ -18,6 +18,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -53,6 +56,49 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            // 2. Tambahkan method navigationGroups di sini
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Manajemen Toko'),
+                NavigationGroup::make()
+                    ->label('Manajemen Konten'),
+                NavigationGroup::make()
+                    ->label('Manajemen Pengguna'),
+            ])
+            // 3. Tambahkan method navigationItems di sini
+            ->navigationItems([
+                NavigationItem::make('Produk')
+                    ->url('#') // URL # berarti belum ada link
+                    ->icon('heroicon-o-shopping-bag')
+                    ->group('Manajemen Toko'),
+                NavigationItem::make('Pesanan')
+                    ->url('#')
+                    ->icon('heroicon-o-shopping-cart')
+                    ->group('Manajemen Toko'),
+                NavigationItem::make('Kategori')
+                    ->url('#')
+                    ->icon('heroicon-o-tag')
+                    ->group('Manajemen Toko'),
+                NavigationItem::make('Promo')
+                    ->url('#')
+                    ->icon('heroicon-o-sparkles')
+                    ->group('Manajemen Toko'),
+
+                NavigationItem::make('Artikel')
+                    ->url('#')
+                    ->icon('heroicon-o-document-text')
+                    ->group('Manajemen Konten'),
+                NavigationItem::make('Testimoni')
+                    ->url('#')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->group('Manajemen Konten'),
+
+                NavigationItem::make('Daftar Pelanggan')
+                    ->url('#')
+                    ->icon('heroicon-o-users')
+                    ->group('Manajemen Pengguna'),
             ]);
     }
 }
+
