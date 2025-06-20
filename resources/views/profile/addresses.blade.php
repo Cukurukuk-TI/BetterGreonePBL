@@ -33,7 +33,19 @@
                         x-init="setTimeout(() => show = false, 2000)"
                         class="text-sm text-green-600 dark:text-green-400 mt-4"
                     >{{ __('Alamat berhasil diperbarui.') }}</p>
-                @endif
+                    @elseif (session('status') === 'address-deleted')
+                    <p
+                        x-data="{ show: true }"
+                        x-show="show"
+                        x-transition x-init="setTimeout(() => show = false, 2000)"
+                        class="text-sm text-green-600 dark:text-green-400 mt-4"
+                    >{{ __('Alamat berhasil dihapus.') }}</p>
+                    @endif
+
+                    {{-- Pesan Error --}}
+                    @if (session('error') === 'cannot-delete-default')
+                        <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)" class="text-sm text-red-600 dark:text-red-400 mt-4">{{ __('Anda tidak dapat menghapus alamat utama. Silakan ganti alamat utama terlebih dahulu.') }}</p>
+                    @endif
 
                 <div class="mt-6 space-y-4">
                     @forelse ($addresses as $address)
@@ -56,10 +68,26 @@
                                     {{ $address->full_address }}, {{ $address->city }}, {{ $address->province }}, {{ $address->postal_code }}
                                 </p>
                             </div>
-                            <div>
-                                <a href="{{ route('profile.addresses.edit', $address) }}">
-                                    <x-secondary-button>Ubah</x-secondary-button>
+                            <div class="flex flex-col items-start gap-2">
+                                {{-- Tombol Ubah --}}
+                                <a href="{{ route('profile.addresses.edit', $address) }}" class="w-full">
+                                    <x-secondary-button class="w-full justify-center">
+                                        {{ __('Ubah') }}
+                                    </x-secondary-button>
                                 </a>
+
+                                {{-- Tombol Hapus --}}
+                                <form method="post" action="{{ route('profile.addresses.destroy', $address) }}" class="w-full">
+                                    @csrf
+                                    @method('delete')
+
+                                    <x-danger-button
+                                        class="w-full justify-center"
+                                        onclick="return confirm('Apakah Anda yakin ingin menghapus alamat ini?')"
+                                    >
+                                        {{ __('Hapus') }}
+                                    </x-danger-button>
+                                </form>
                             </div>
                         </div>
                     @empty

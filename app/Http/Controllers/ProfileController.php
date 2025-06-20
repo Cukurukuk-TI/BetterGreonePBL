@@ -154,4 +154,21 @@ class ProfileController extends Controller
         return redirect()->route('profile.addresses')->with('status', 'address-updated');
     }
 
+        public function destroyAddress(Address $address)
+    {
+        // Keamanan: Pastikan user hanya bisa menghapus alamat miliknya sendiri.
+        if ($address->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // Aturan tambahan: Jangan biarkan user menghapus alamat utamanya.
+        if ($address->is_default) {
+            return redirect()->route('profile.addresses')->with('error', 'cannot-delete-default');
+        }
+
+        $address->delete();
+
+        return redirect()->route('profile.addresses')->with('status', 'address-deleted');
+    }
+
 }

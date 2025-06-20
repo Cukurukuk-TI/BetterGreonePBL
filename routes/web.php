@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile/addresses', [ProfileController::class, 'storeAddress'])->name('profile.addresses.store');
     Route::get('/profile/addresses/{address}/edit', [ProfileController::class, 'editAddress'])->name('profile.addresses.edit');
     Route::patch('/profile/addresses/{address}', [ProfileController::class, 'updateAddress'])->name('profile.addresses.update');
-
+    Route::delete('/profile/addresses/{address}', [ProfileController::class, 'destroyAddress'])->name('profile.addresses.destroy');
 
 });
 
