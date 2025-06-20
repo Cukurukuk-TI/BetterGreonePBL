@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
@@ -71,6 +72,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     {
         // Logika otorisasi: hanya izinkan jika kolom is_admin bernilai true
         return $this->is_admin;
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
     }
 
 }
