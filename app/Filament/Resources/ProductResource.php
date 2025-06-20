@@ -20,6 +20,7 @@ use Filament\Forms\Set;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Support\Str;
 
 class ProductResource extends Resource
@@ -93,14 +94,23 @@ class ProductResource extends Resource
                 // Menambahkan filter berdasarkan kategori
                 SelectFilter::make('category')
                     ->relationship('category', 'name')
-                    ->label('Filter Kategori')
+                    ->label('Filter Kategori'),
+                TrashedFilter::make(),
+
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\RestoreAction::make(),
+                Tables\Actions\ForceDeleteAction::make(),
             ])
             ->bulkActions([
-                //
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                ]),
             ]);
     }
 
