@@ -52,6 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/orders', [CheckoutController::class, 'store'])->name('orders.store'); // <-- ROUTE BARU
     Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('order.success');
     Route::get('/profile/my-orders', [OrderController::class, 'index'])->name('profile.orders');
+    Route::get('/profile/my-orders/{order}', [OrderController::class, 'show'])->name('profile.orders.show');
 
 });
 

@@ -32,4 +32,19 @@ class OrderController extends Controller
         // Tampilkan view 'order.success' dan kirim data pesanan
         return view('orders.success', compact('order'));
     }
+
+    public function show(Order $order)
+    {
+        // Otorisasi: Pastikan pengguna yang mengakses adalah pemilik pesanan
+        if (auth()->id() !== $order->user_id) {
+            abort(403);
+        }
+
+        // Eager load relasi orderItems beserta produk di dalamnya
+        $order->load('orderItems.product');
+
+        // Tampilkan view 'orders.show' dan kirim data pesanan
+        return view('orders.show', compact('order'));
+    }
+
 }

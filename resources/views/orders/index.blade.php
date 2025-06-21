@@ -37,7 +37,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4">
-                                        <a href="#" class="font-medium text-green-600 dark:text-green-500 hover:underline">Detail</a>
+                                        <a href="{{ route('profile.orders.show', $order) }}" class="font-medium text-green-600 dark:text-green-500 hover:underline">Detail</a>
                                     </td>
                                 </tr>
                             @empty
