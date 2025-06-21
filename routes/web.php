@@ -4,6 +4,9 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Livewire\ProductPage;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
 
 // RUTE PUBLIK (Bisa diakses tanpa login)
 Route::get('/', function () {
@@ -37,6 +40,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/addresses/{address}/edit', [ProfileController::class, 'editAddress'])->name('profile.addresses.edit');
     Route::patch('/profile/addresses/{address}', [ProfileController::class, 'updateAddress'])->name('profile.addresses.update');
     Route::delete('/profile/addresses/{address}', [ProfileController::class, 'destroyAddress'])->name('profile.addresses.destroy');
+
+    // Route untuk menambahkan produk ke keranjang
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('cart.add');
+    Route::patch('/cart/update/{cart}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{cart}', [CartController::class, 'destroy'])->name('cart.remove');
+
+    // Route Pesanan
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/orders', [CheckoutController::class, 'store'])->name('orders.store'); // <-- ROUTE BARU
+    Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('order.success');
+    Route::get('/profile/my-orders', [OrderController::class, 'index'])->name('profile.orders');
+    Route::get('/profile/my-orders/{order}', [OrderController::class, 'show'])->name('profile.orders.show');
 
 });
 

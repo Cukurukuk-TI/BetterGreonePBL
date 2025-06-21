@@ -29,9 +29,21 @@
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 @auth
-                    <a href="#" class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+
+                <div class="relative flex items-center me-1">
+
+                    {{-- Ikon Keranjang Anda --}}
+                    <a href="{{ route('cart.index') }}" class="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c.51 0 .962-.344 1.087-.849l1.85-6.974A1.125 1.125 0 0 0 16.5 3.75H5.88a1.125 1.125 0 0 0-1.124 1.314l2.258 8.467c.13.49.577.848 1.087.848H18.5a1.125 1.125 0 0 0 1.125-1.125l-8.46-1.409a1.125 1.125 0 0 1-.944-1.359Z" /></svg>
                     </a>
+
+                    {{-- Lencana Notifikasi --}}
+                    @if(isset($cartCount) && $cartCount > 0)
+                        <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -mt-1 -mr-1 dark:border-gray-800">
+                            {{ $cartCount }}
+                        </span>
+                    @endif
+                </div>
 
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
