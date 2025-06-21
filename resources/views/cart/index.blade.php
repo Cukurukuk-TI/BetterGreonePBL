@@ -82,9 +82,11 @@
                             <h3 class="text-xl font-bold">
                                 Total: <span>Rp {{ number_format($cartItems->sum(function($item) { return $item->product->price * $item->quantity; }), 0, ',', '.') }}</span>
                             </h3>
-                            <x-primary-button class="mt-4">
-                                {{ __('Lanjut ke Checkout') }}
-                            </x-primary-button>
+                            <a href="{{ route('checkout.index') }}">
+                                <x-primary-button class="mt-4 bg-green-600 hover:bg-green-700">
+                                    {{ __('Lanjut ke Checkout') }}
+                                </x-primary-button>
+                            </a>
                         </div>
                     @else
                         <div class="text-center py-10">
