@@ -8,6 +8,18 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+
+    public function index()
+    {
+        // Ambil semua item keranjang milik pengguna yang sedang login
+        // 'with('product')' digunakan untuk eager loading agar lebih efisien
+        $cartItems = Cart::with('product.category')
+                         ->where('user_id', auth()->id())
+                         ->get();
+
+        return view('cart.index', compact('cartItems'));
+    }
+
     /**
      * Store a newly created resource in storage.
      */

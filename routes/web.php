@@ -40,7 +40,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile/addresses/{address}', [ProfileController::class, 'destroyAddress'])->name('profile.addresses.destroy');
 
     // Route untuk menambahkan produk ke keranjang
-    Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('keranjang.tambah');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('cart.add');
 
 });
 
