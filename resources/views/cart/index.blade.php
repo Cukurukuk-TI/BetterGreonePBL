@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Keranjang Belanja') }}
         </h2>
     </x-slot>
@@ -10,6 +10,12 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
+                    @if(session('success'))
+                        <div class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-100 dark:bg-gray-900 dark:text-green-400" role="alert">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
                     @if ($cartItems->isNotEmpty())
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm text-left">
@@ -17,30 +23,54 @@
                                     <tr>
                                         <th scope="col" class="px-6 py-3">Produk</th>
                                         <th scope="col" class="px-6 py-3">Harga</th>
-                                        <th scope="col" class="px-6 py-3">Kuantitas</th>
-                                        <th scope="col" class="px-6 py-3">Subtotal</th>
-                                        <th scope="col" class="px-6 py-3">Aksi</th>
+                                        <th scope="col" class="px-6 py-3 text-center">Kuantitas</th>
+                                        <th scope="col" class="px-6 py-3 text-right">Subtotal</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($cartItems as $item)
-                                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 align-middle">
                                             <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white flex items-center">
-                                                <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}" class="w-16 h-16 mr-4 rounded">
-                                                {{ $item->product->name }}
+                                                <img src="{{ asset('storage/' . $item->product->image_path) }}" alt="{{ $item->product->name }}" class="w-16 h-16 mr-4 rounded">
+                                                <span>{{ $item->product->name }}</span>
                                             </td>
                                             <td class="px-6 py-4">
                                                 Rp {{ number_format($item->product->price, 0, ',', '.') }}
                                             </td>
                                             <td class="px-6 py-4">
-                                                {{ $item->quantity }}
+                                                <div class="flex items-center justify-center space-x-3">
+
+                                                    <form action="{{ route('cart.update', $item->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="quantity" value="{{ $item->quantity - 1 }}">
+                                                        <button type="submit" class="p-1 border rounded-full" @if($item->quantity <= 1) disabled @endif>
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                                        </button>
+                                                    </form>
+
+                                                    <span class="font-semibold">{{ $item->quantity }}</span>
+
+                                                    <form action="{{ route('cart.update', $item->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <input type="hidden" name="quantity" value="{{ $item->quantity + 1 }}">
+                                                        <button type="submit" class="p-1 border rounded-full">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                                        </button>
+                                                    </form>
+
+                                                    <form action="{{ route('cart.remove', $item->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="p-1 text-red-500 hover:text-red-700" title="Hapus item">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
-                                            <td class="px-6 py-4">
+                                            <td class="px-6 py-4 text-right font-semibold">
                                                 Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                {{-- Tombol Hapus akan diimplementasikan di commit selanjutnya --}}
-                                                <button class="font-medium text-red-600 dark:text-red-500 hover:underline">Hapus</button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -50,7 +80,7 @@
 
                         <div class="mt-6 text-right">
                             <h3 class="text-xl font-bold">
-                                Total: Rp {{ number_format($cartItems->sum(function($item) { return $item->product->price * $item->quantity; }), 0, ',', '.') }}
+                                Total: <span>Rp {{ number_format($cartItems->sum(function($item) { return $item->product->price * $item->quantity; }), 0, ',', '.') }}</span>
                             </h3>
                             <x-primary-button class="mt-4">
                                 {{ __('Lanjut ke Checkout') }}
@@ -64,7 +94,6 @@
                             </a>
                         </div>
                     @endif
-
                 </div>
             </div>
         </div>

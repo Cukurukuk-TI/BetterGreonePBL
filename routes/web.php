@@ -42,6 +42,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route untuk menambahkan produk ke keranjang
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{product}', [CartController::class, 'store'])->name('cart.add');
+    Route::patch('/cart/update/{cart}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{cart}', [CartController::class, 'destroy'])->name('cart.remove');
 
 });
 

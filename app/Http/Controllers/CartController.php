@@ -45,4 +45,28 @@ class CartController extends Controller
         // Kembali ke halaman sebelumnya dengan pesan sukses
         return back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
+
+    // [FIX] Ubah method update agar me-redirect
+    public function update(Request $request, Cart $cart)
+    {
+        if ($cart->user_id !== auth()->id()) {
+            abort(403);
+        }
+        $request->validate(['quantity' => 'required|numeric|min:1']);
+        $cart->update(['quantity' => $request->quantity]);
+
+        return redirect()->route('cart.index')->with('success', 'Kuantitas produk diperbarui.');
+    }
+
+    // [FIX] Ubah method destroy agar me-redirect
+    public function destroy(Cart $cart)
+    {
+        if ($cart->user_id !== auth()->id()) {
+            abort(403);
+        }
+        $cart->delete();
+
+        return redirect()->route('cart.index')->with('success', 'Produk berhasil dihapus dari keranjang.');
+    }
+
 }
