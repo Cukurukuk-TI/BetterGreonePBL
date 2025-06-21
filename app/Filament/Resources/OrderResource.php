@@ -37,7 +37,7 @@ class OrderResource extends Resource
                     ->schema([
                         TextInput::make('id')->label('Order ID')->disabled(),
                         TextInput::make('user.name')->label('Nama Pelanggan')->disabled(),
-                        TextInput::make('grand_total')->label('Total Harga')->money('IDR')->disabled(),
+                        TextInput::make('grand_total')->label('Total Harga')->prefix('Rp')->numeric(0, ',', '.')->disabled(),
                         TextInput::make('shipping_address')->label('Alamat Pengiriman')->disabled(),
                     ])->columns(2),
 
@@ -101,7 +101,7 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\OrderItemsRelationManager::class,
         ];
     }
 
