@@ -44,7 +44,7 @@
                                 <div class="space-y-4">
                                     @forelse ($addresses as $address)
                                         <label for="address-{{ $address->id }}" class="flex items-start p-4 border rounded-lg cursor-pointer has-[:checked]:border-green-600 has-[:checked]:ring-2 has-[:checked]:ring-green-200 dark:border-gray-700">
-                                            <input type="radio" name="address_id" id="address-{{ $address->id }}" value="{{ $address->id }}" class="h-4 w-4 mt-1 text-green-600 focus:ring-green-500 border-gray-300" {{ $address->is_primary ? 'checked' : '' }}>
+                                            <input type="radio" name="address_id" id="address-{{ $address->id }}" value="{{ $address->id }}" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300" {{ $address->is_default ? 'checked' : '' }}>
                                             <div class="ms-4 text-sm">
                                                 <p class="font-medium text-gray-900 dark:text-gray-100">{{ $address->label }}
                                                     @if($address->is_primary)<span class="text-xs font-semibold text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-200 px-2 py-0.5 rounded-full">Utama</span>@endif
