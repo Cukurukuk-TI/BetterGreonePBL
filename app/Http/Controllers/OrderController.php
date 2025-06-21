@@ -8,6 +8,18 @@ use Illuminate\Http\Request;
 class OrderController extends Controller
 {
     /**
+     * Menampilkan halaman riwayat pesanan pengguna.
+     */
+    public function index()
+    {
+        $orders = Order::where('user_id', auth()->id())
+                       ->latest() // Urutkan dari yang paling baru
+                       ->paginate(10); // Gunakan paginasi jika pesanan banyak
+
+        return view('orders.index', compact('orders'));
+    }
+
+    /**
      * Menampilkan halaman konfirmasi pesanan berhasil.
      */
     public function success(Order $order)
