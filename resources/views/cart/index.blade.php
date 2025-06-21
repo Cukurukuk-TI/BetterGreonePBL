@@ -16,6 +16,14 @@
                         </div>
                     @endif
 
+                    {{-- [PENTING] Tambahkan juga notifikasi untuk 'error' dari controller --}}
+                    @if(session('error'))
+                        <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-100 dark:bg-gray-900 dark:text-red-400" role="alert">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+
                     @if ($cartItems->isNotEmpty())
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm text-left">
@@ -39,7 +47,6 @@
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="flex items-center justify-center space-x-3">
-
                                                     <form action="{{ route('cart.update', $item->id) }}" method="POST">
                                                         @csrf
                                                         @method('PATCH')
@@ -59,15 +66,12 @@
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                                                         </button>
                                                     </form>
-
-                                                    <form action="{{ route('cart.remove', $item->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="p-1 text-red-500 hover:text-red-700" title="Hapus item">
-                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                        </button>
-                                                    </form>
                                                 </div>
+
+                                                @if ($item->quantity > $item->product->stock)
+                                                    <p class="text-xs text-red-500 mt-1 text-center">Stok tidak cukup! (Sisa: {{ $item->product->stock }})</p>
+                                                @endif
+
                                             </td>
                                             <td class="px-6 py-4 text-right font-semibold">
                                                 Rp {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}

@@ -37,6 +37,15 @@ class CheckoutController extends Controller
 
         $user = auth()->user();
         $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
+
+        foreach ($cartItems as $item) {
+            if ($item->product->stock < $item->quantity) {
+                // Jika ada stok yang kurang, tendang kembali ke halaman keranjang dengan pesan error
+                return redirect()->route('cart.index')
+                    ->with('error', 'Stok untuk produk "' . $item->product->name . '" tidak mencukupi. Silakan kurangi kuantitas Anda.');
+            }
+        }
+
         $selectedAddress = Address::find($request->address_id);
 
         // Pastikan alamat milik user yang sedang login
