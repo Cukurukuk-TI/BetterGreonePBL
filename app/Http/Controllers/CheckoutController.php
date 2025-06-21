@@ -8,6 +8,7 @@ use App\Models\Address;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class CheckoutController extends Controller
 {
@@ -30,70 +31,91 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Validasi
-        $request->validate([
-            'address_id' => 'required|exists:addresses,id',
+        // 1. Validasi Input dari Form
+        $validated = $request->validate([
+            'shipping_method' => ['required', Rule::in(['delivery', 'pickup'])],
+            'payment_method' => ['required', Rule::in(['cod', 'transfer'])],
+            // Alamat hanya wajib jika metode pengiriman adalah 'delivery'
+            'address_id' => [
+                Rule::requiredIf($request->input('shipping_method') === 'delivery'),
+                'exists:addresses,id'
+            ],
+            // Ambil data total dari hidden input
+            'shipping_cost' => 'required|numeric',
+            'grand_total' => 'required|numeric',
         ]);
 
         $user = auth()->user();
         $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
 
+        // Jika metode pembayaran adalah transfer, arahkan ke Midtrans (logika nanti)
+        if ($validated['payment_method'] === 'transfer') {
+            // TODO: Panggil logika untuk generate Snap Token Midtrans di sini
+            return redirect()->route('home')->with('info', 'Metode pembayaran online akan segera hadir.');
+        }
+
+        // --- Proses untuk COD (Cash On Delivery) ---
+
+        // Pengecekan stok
         foreach ($cartItems as $item) {
             if ($item->product->stock < $item->quantity) {
-                // Jika ada stok yang kurang, tendang kembali ke halaman keranjang dengan pesan error
-                return redirect()->route('cart.index')
-                    ->with('error', 'Stok untuk produk "' . $item->product->name . '" tidak mencukupi. Silakan kurangi kuantitas Anda.');
+                return redirect()->route('cart.index')->with('error', 'Stok untuk produk "' . $item->product->name . '" tidak mencukupi.');
             }
         }
 
-        $selectedAddress = Address::find($request->address_id);
-
-        // Pastikan alamat milik user yang sedang login
-        if ($selectedAddress->user_id !== $user->id) {
-            return back()->with('error', 'Alamat tidak valid.');
-        }
-
-        // 2. Gunakan Database Transaction
+        // Mulai Database Transaction
         try {
             DB::beginTransaction();
 
-            // Hitung total
-            $subtotal = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
-            $shippingCost = 15000; // Nanti bisa dibuat dinamis
-            $grandTotal = $subtotal + $shippingCost;
+            $shippingAddress = null;
+            if ($validated['shipping_method'] === 'delivery') {
+                $address = Address::find($validated['address_id']);
+                // Pastikan alamat milik user
+                if ($address->user_id !== $user->id) {
+                    throw new \Exception('Alamat tidak valid.');
+                }
+                // Format alamat untuk disimpan di pesanan
+                $shippingAddress = "{$address->recipient_name} ({$address->phone_number})\n{$address->full_address}";
+            } else {
+                // Jika ambil di tempat, alamat bisa dikosongkan atau diisi info toko
+                $shippingAddress = "Ambil di Tempat (Toko Sayur Hidroponik)";
+            }
 
-            // 3. Buat entri di tabel 'orders'
+            // Buat entri di tabel 'orders'
             $order = Order::create([
                 'user_id' => $user->id,
-                'grand_total' => $grandTotal,
-                'shipping_address' => $selectedAddress->full_address,
-                'shipping_cost' => $shippingCost,
-                'status' => 'pending',
-                'payment_status' => 'pending',
+                'grand_total' => $validated['grand_total'],
+                'shipping_address' => $shippingAddress,
+                'shipping_method' => $validated['shipping_method'],
+                'shipping_cost' => $validated['shipping_cost'],
+                'status' => 'processing', // Untuk COD, bisa langsung dianggap 'processing'
+                'payment_status' => 'pending', // Status pembayaran tetap 'pending' sampai dibayar
+                'payment_gateway' => 'COD',
             ]);
 
-            // 4. Pindahkan item dari keranjang ke 'order_items'
+            // Pindahkan item dari keranjang ke 'order_items'
             foreach ($cartItems as $cartItem) {
                 $order->orderItems()->create([
                     'product_id' => $cartItem->product_id,
                     'quantity' => $cartItem->quantity,
-                    'price' => $cartItem->product->price, // Simpan harga saat ini
+                    'price' => $cartItem->product->price,
                 ]);
+                // Kurangi stok produk
+                $cartItem->product->decrement('stock', $cartItem->quantity);
             }
 
-            // 5. Kosongkan keranjang
+            // Kosongkan keranjang
             Cart::where('user_id', $user->id)->delete();
 
             DB::commit();
 
-            // TODO: Di commit 6, kita akan arahkan ke halaman sukses
-            // Untuk sekarang, kita arahkan ke dashboard dengan pesan sukses
+            // Arahkan ke halaman sukses
             return redirect()->route('order.success', $order);
 
         } catch (\Exception $e) {
             DB::rollBack();
             // Tampilkan error jika transaksi gagal
-            return back()->with('error', 'Terjadi kesalahan saat memproses pesanan Anda. Silakan coba lagi.');
+            return back()->with('error', 'Terjadi kesalahan saat memproses pesanan Anda: ' . $e->getMessage());
         }
     }
 

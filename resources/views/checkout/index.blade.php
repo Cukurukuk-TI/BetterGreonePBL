@@ -143,9 +143,9 @@
                                 <input type="hidden" name="shipping_cost" id="shipping-cost-input" value="10000">
                                 <input type="hidden" name="grand_total" id="grand-total-input" value="{{ $subtotal + 10000 }}">
 
-                                <x-primary-button type="button" id="process-payment-button" class="w-full text-center justify-center">
-                                    {{ __('Buat Pesanan (COD)') }}
-                                </x-primary-button>
+                            <x-primary-button type="submit" id="process-payment-button" class="w-full text-center justify-center">
+                                <span id="button-text">{{ __('Buat Pesanan (COD)') }}</span>
+                            </x-primary-button>
                             </div>
                         </div>
                     </div>
@@ -163,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const addressCard = document.getElementById('address-card');
     const shippingCostText = document.getElementById('shipping-cost-text');
     const grandTotalText = document.getElementById('grand-total-text');
-    const processButton = document.getElementById('process-payment-button');
     const processButtonText = processButton.querySelector('span') || processButton;
 
     const subtotal = {{ $subtotal }};
