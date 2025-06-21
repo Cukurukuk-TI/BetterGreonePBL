@@ -11,7 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->validateCsrfTokens(except: [
+            'midtrans/notification', // Path route webhook Anda
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

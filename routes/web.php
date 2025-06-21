@@ -7,6 +7,7 @@ use App\Livewire\ProductPage;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\WebhookController;
 
 // RUTE PUBLIK (Bisa diakses tanpa login)
 Route::get('/', function () {
@@ -57,3 +58,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+    Route::post('/midtrans/notification', [WebhookController::class, 'handle'])->name('midtrans.notification');

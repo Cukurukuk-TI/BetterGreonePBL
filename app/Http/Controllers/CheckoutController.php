@@ -9,114 +9,131 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class CheckoutController extends Controller
 {
     public function index()
     {
-        // Ambil semua item di keranjang milik pengguna yang sedang login
         $user = auth()->user();
         $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
 
-        // Jika keranjang kosong, jangan biarkan masuk ke halaman checkout
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong. Silakan belanja terlebih dahulu.');
         }
 
         $addresses = Address::where('user_id', $user->id)->latest()->get();
-
-        // Tampilkan view checkout dan kirim data keranjang
         return view('checkout.index', compact('cartItems', 'addresses'));
     }
 
     public function store(Request $request)
     {
-        // 1. Validasi Input dari Form
+        // 1. Validasi Input
         $validated = $request->validate([
             'shipping_method' => ['required', Rule::in(['delivery', 'pickup'])],
             'payment_method' => ['required', Rule::in(['cod', 'transfer'])],
-            // Alamat hanya wajib jika metode pengiriman adalah 'delivery'
             'address_id' => [
                 Rule::requiredIf($request->input('shipping_method') === 'delivery'),
-                'exists:addresses,id'
+                'nullable',
+                Rule::exists('addresses', 'id')->where(function ($query) {
+                    $query->where('user_id', auth()->id());
+                }),
             ],
-            // Ambil data total dari hidden input
-            'shipping_cost' => 'required|numeric',
-            'grand_total' => 'required|numeric',
         ]);
 
         $user = auth()->user();
         $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
+        $shippingAddress = ($validated['shipping_method'] === 'delivery')
+            ? Address::find($validated['address_id'])->full_address
+            : 'Pickup di Toko';
 
-        // Jika metode pembayaran adalah transfer, arahkan ke Midtrans (logika nanti)
-        if ($validated['payment_method'] === 'transfer') {
-            // TODO: Panggil logika untuk generate Snap Token Midtrans di sini
-            return redirect()->route('home')->with('info', 'Metode pembayaran online akan segera hadir.');
-        }
-
-        // --- Proses untuk COD (Cash On Delivery) ---
-
-        // Pengecekan stok
-        foreach ($cartItems as $item) {
-            if ($item->product->stock < $item->quantity) {
-                return redirect()->route('cart.index')->with('error', 'Stok untuk produk "' . $item->product->name . '" tidak mencukupi.');
-            }
-        }
-
-        // Mulai Database Transaction
+        // Mulai transaksi database
+        DB::beginTransaction();
         try {
-            DB::beginTransaction();
-
-            $shippingAddress = null;
-            if ($validated['shipping_method'] === 'delivery') {
-                $address = Address::find($validated['address_id']);
-                // Pastikan alamat milik user
-                if ($address->user_id !== $user->id) {
-                    throw new \Exception('Alamat tidak valid.');
-                }
-                // Format alamat untuk disimpan di pesanan
-                $shippingAddress = "{$address->recipient_name} ({$address->phone_number})\n{$address->full_address}";
-            } else {
-                // Jika ambil di tempat, alamat bisa dikosongkan atau diisi info toko
-                $shippingAddress = "Ambil di Tempat (Toko Sayur Hidroponik)";
-            }
-
-            // Buat entri di tabel 'orders'
-            $order = Order::create([
-                'user_id' => $user->id,
-                'grand_total' => $validated['grand_total'],
-                'shipping_address' => $shippingAddress,
-                'shipping_method' => $validated['shipping_method'],
-                'shipping_cost' => $validated['shipping_cost'],
-                'status' => 'processing', // Untuk COD, bisa langsung dianggap 'processing'
-                'payment_status' => 'pending', // Status pembayaran tetap 'pending' sampai dibayar
-                'payment_gateway' => 'COD',
-            ]);
-
-            // Pindahkan item dari keranjang ke 'order_items'
-            foreach ($cartItems as $cartItem) {
-                $order->orderItems()->create([
-                    'product_id' => $cartItem->product_id,
-                    'quantity' => $cartItem->quantity,
-                    'price' => $cartItem->product->price,
+            // Logika untuk Cash on Delivery (COD)
+            if ($validated['payment_method'] === 'cod') {
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'grand_total' => $cartItems->sum(fn($item) => $item->product->price * $item->quantity),
+                    'shipping_address' => $shippingAddress,
+                    'status' => 'processing',
+                    'payment_status' => 'pending',
+                    'payment_gateway' => 'COD',
                 ]);
-                // Kurangi stok produk
-                $cartItem->product->decrement('stock', $cartItem->quantity);
+
+                foreach ($cartItems as $cartItem) {
+                    $order->orderItems()->create([
+                        'product_id' => $cartItem->product_id, 'quantity' => $cartItem->quantity, 'price' => $cartItem->product->price,
+                    ]);
+                    $cartItem->product->decrement('stock', $cartItem->quantity);
+                }
+
+                Cart::where('user_id', $user->id)->delete();
+                DB::commit();
+                return redirect()->route('order.success', $order);
             }
 
-            // Kosongkan keranjang
-            Cart::where('user_id', $user->id)->delete();
+            // ====================================================================
+            // LOGIKA UNTUK MIDTRANS (TRANSFER) DIMULAI DI SINI
+            // ====================================================================
+            elseif ($validated['payment_method'] === 'transfer') {
+                // a. Buat order dengan status 'pending'
+                $order = Order::create([
+                    'user_id' => $user->id,
+                    'grand_total' => $cartItems->sum(fn($item) => $item->product->price * $item->quantity),
+                    'shipping_address' => $shippingAddress,
+                    'status' => 'pending', // Status order pending karena menunggu pembayaran
+                    'payment_status' => 'pending',
+                    'payment_gateway' => 'Midtrans',
+                ]);
 
-            DB::commit();
+                $itemDetails = [];
+                foreach ($cartItems as $cartItem) {
+                    $order->orderItems()->create([
+                        'product_id' => $cartItem->product_id, 'quantity' => $cartItem->quantity, 'price' => $cartItem->product->price,
+                    ]);
+                    // Jangan kurangi stok dulu, tunggu pembayaran berhasil
+                    $itemDetails[] = ['id' => $cartItem->product_id, 'price' => $cartItem->product->price, 'quantity' => $cartItem->quantity, 'name' => $cartItem->product->name];
+                }
 
-            // Arahkan ke halaman sukses
-            return redirect()->route('order.success', $order);
+                // b. Konfigurasi Midtrans
+                Config::$serverKey = config('midtrans.server_key');
+                Config::$isProduction = config('midtrans.is_production');
+                Config::$isSanitized = true; Config::$is3ds = true;
+
+                // c. Siapkan parameter untuk Midtrans
+                $params = [
+                    'transaction_details' => [
+                        'order_id' => 'ORDER-' . $order->id . '-' . time(),
+                        'gross_amount' => $order->grand_total,
+                    ],
+                    'customer_details' => [
+                        'first_name' => $user->name, 'email' => $user->email, 'phone' => $user->phone ?? '081234567890',
+                    ],
+                    'item_details' => $itemDetails,
+                ];
+
+                // d. Dapatkan Snap Token
+                $snapToken = Snap::getSnapToken($params);
+
+                // e. Simpan Snap Token ke order untuk referensi
+                $order->payment_token = $snapToken;
+                $order->save();
+
+                // f. Hapus keranjang belanja
+                Cart::where('user_id', $user->id)->delete();
+
+                DB::commit();
+
+                // g. Kembalikan view dengan Snap Token
+                $addresses = Address::where('user_id', $user->id)->latest()->get(); // Ambil lagi untuk dikirim ke view
+                return view('checkout.index', compact('cartItems', 'addresses', 'snapToken'));
+            }
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Tampilkan error jika transaksi gagal
-            return back()->with('error', 'Terjadi kesalahan saat memproses pesanan Anda: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-
 }
