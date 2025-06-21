@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Livewire\ProductPage;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
 
 // RUTE PUBLIK (Bisa diakses tanpa login)
 Route::get('/', function () {
@@ -49,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route Pesanan
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/orders', [CheckoutController::class, 'store'])->name('orders.store'); // <-- ROUTE BARU
+    Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('order.success');
 
 });
 

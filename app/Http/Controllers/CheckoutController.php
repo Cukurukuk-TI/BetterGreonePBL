@@ -79,7 +79,7 @@ class CheckoutController extends Controller
 
             // TODO: Di commit 6, kita akan arahkan ke halaman sukses
             // Untuk sekarang, kita arahkan ke dashboard dengan pesan sukses
-            return redirect()->route('dashboard')->with('success', 'Pesanan Anda berhasil dibuat!');
+            return redirect()->route('order.success', $order);
 
         } catch (\Exception $e) {
             DB::rollBack();
